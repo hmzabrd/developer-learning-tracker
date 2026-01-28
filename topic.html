@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic Detail - Developer Learning Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">📚 Learning Tracker</div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="paths.html">Paths</a></li>
+                <li><a href="snippets.html">Snippets</a></li>
+                <li><a href="stats.html">Stats</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <button class="btn-secondary mb-20" onclick="goBack()">← Back to Path</button>
+
+        <div class="topic-header">
+            <h1 id="topicName">Topic Name</h1>
+            <p id="topicPath">Path</p>
+        </div>
+
+        <!-- Completion Status -->
+        <div class="card">
+            <h3>Mark Progress</h3>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="completionCheckbox" onchange="toggleCompletion()">
+                <label for="completionCheckbox" style="margin: 0;">I have completed this topic</label>
+            </div>
+            <p id="completionDate" class="text-muted"></p>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="card">
+            <h3>My Notes</h3>
+            <textarea id="notesArea" placeholder="Write your notes here..." onchange="saveNotes()"></textarea>
+            <p class="text-muted" style="margin-top: 10px;">Notes are automatically saved</p>
+        </div>
+
+        <!-- Snippets Section -->
+        <div class="card">
+            <h3>Code Snippets for This Topic</h3>
+            <button class="btn-primary mb-20" onclick="openSnippetEditor()">+ Add Code Snippet</button>
+            <div id="snippetsContainer"></div>
+        </div>
+    </main>
+
+    <!-- Snippet Editor Modal -->
+    <div class="modal" id="snippetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Code Snippet</h2>
+                <button class="close-btn" onclick="hideModal('snippetModal')">&times;</button>
+            </div>
+
+            <div>
+                <label for="snippetTitle">Snippet Title</label>
+                <input type="text" id="snippetTitle" placeholder="e.g., Array Map Example">
+
+                <label for="snippetLanguage">Language</label>
+                <div style="display: flex; gap: 15px; margin: 10px 0;">
+                    <label>
+                        <input type="radio" name="language" value="html"> HTML
+                    </label>
+                    <label>
+                        <input type="radio" name="language" value="css"> CSS
+                    </label>
+                    <label>
+                        <input type="radio" name="language" value="javascript" checked> JavaScript
+                    </label>
+                </div>
+
+                <label for="snippetCode">Code</label>
+                <textarea id="snippetCode" placeholder="Paste your code here..." rows="10"></textarea>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-primary" onclick="saveSnippet()">Save Snippet</button>
+                    <button class="btn-secondary" onclick="hideModal('snippetModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentTopicId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get topic ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            currentTopicId = urlParams.get('topic');
+
+            if (currentTopicId) {
+                loadTopicDetail();
+            } else {
+                document.querySelector('main').innerHTML = '<p>Topic not found</p>';
+            }
+        });
+
+        function loadTopicDetail() {
+            const topics = loadTopics();
+            const topic = topics[currentTopicId];
+
+            if (!topic) {
+                document.querySelector('main').innerHTML = '<p>Topic not found</p>';
+                return;
+            }
+
+            // Update header
+            document.getElementById('topicName').textContent = topic.name;
+            document.getElementById('topicPath').textContent = getPathName(topic.path) + ' Learning Path';
+
+            // Update completion checkbox
+            document.getElementById('completionCheckbox').checked = topic.completed;
+            if (topic.completed) {
+                document.getElementById('completionDate').textContent = '✓ Completed on ' + formatDate(new Date(topic.completedDate));
+            } else {
+                document.getElementById('completionDate').textContent = 'Not completed yet';
+            }
+
+            // Load notes
+            document.getElementById('notesArea').value = topic.notes || '';
+
+            // Load snippets for this topic
+            loadSnippets();
+        }
+
+        function toggleCompletion() {
+            const topics = loadTopics();
+            const topic = topics[currentTopicId];
+
+            if (document.getElementById('completionCheckbox').checked) {
+                completeTopic(currentTopicId);
+                document.getElementById('completionDate').textContent = '✓ Completed today';
+            } else {
+                topic.completed = false;
+                topic.completedDate = null;
+                saveTopic(currentTopicId, topic);
+                document.getElementById('completionDate').textContent = 'Not completed yet';
+            }
+        }
+
+        function saveNotes() {
+            const topics = loadTopics();
+            const topic = topics[currentTopicId];
+            topic.notes = document.getElementById('notesArea').value;
+            saveTopic(currentTopicId, topic);
+        }
+
+        function openSnippetEditor() {
+            document.getElementById('snippetTitle').value = '';
+            document.getElementById('snippetCode').value = '';
+            document.querySelector('input[name="language"][value="javascript"]').checked = true;
+            showModal('snippetModal');
+        }
+
+        function saveSnippet() {
+            const title = document.getElementById('snippetTitle').value.trim();
+            const code = document.getElementById('snippetCode').value.trim();
+            const language = document.querySelector('input[name="language"]:checked').value;
+
+            if (!title || !code) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const snippet = {
+                title: title,
+                topicId: currentTopicId,
+                language: language,
+                code: code
+            };
+
+            saveSnippet(snippet);
+            hideModal('snippetModal');
+            loadSnippets();
+        }
+
+        function loadSnippets() {
+            const snippets = getSnippetsByTopic(currentTopicId);
+            const container = document.getElementById('snippetsContainer');
+
+            if (snippets.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280;">No snippets yet. Create your first one!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            snippets.forEach(snippet => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const codeLines = snippet.code.split('\n');
+                const preview = codeLines.slice(0, 3).join('\n');
+                const hasMore = codeLines.length > 3;
+
+                card.innerHTML = `
+                    <h4>${snippet.title}</h4>
+                    <p style="color: #6b7280; font-size: 12px;">Language: ${snippet.language}</p>
+                    <pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; overflow-x: auto; margin: 10px 0;">${preview}${hasMore ? '\n...' : ''}</pre>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-primary" onclick="viewSnippet('${snippet.id}')">View Full</button>
+                        <button class="btn-danger" onclick="deleteSnippetConfirm('${snippet.id}')">Delete</button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function viewSnippet(id) {
+            const snippets = loadSnippets();
+            const snippet = snippets.find(s => s.id === id);
+            if (snippet) {
+                alert('Full Code:\n\n' + snippet.code);
+            }
+        }
+
+        function deleteSnippetConfirm(id) {
+            if (confirm('Are you sure you want to delete this snippet?')) {
+                deleteSnippet(id);
+                loadSnippets();
+            }
+        }
+
+        function goBack() {
+            const topics = loadTopics();
+            const topic = topics[currentTopicId];
+            window.location.href = 'paths.html#' + topic.path;
+        }
+    </script>
+</body>
+</html>

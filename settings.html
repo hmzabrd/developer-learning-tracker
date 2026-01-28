@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Developer Learning Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">📚 Learning Tracker</div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="paths.html">Paths</a></li>
+                <li><a href="snippets.html">Snippets</a></li>
+                <li><a href="stats.html">Stats</a></li>
+                <li><a href="settings.html" class="active">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Settings</h1>
+            <p>Customize your learning tracker</p>
+        </div>
+
+        <!-- User Profile Section -->
+        <section class="card">
+            <h2>User Profile</h2>
+            <div>
+                <label for="userName">Your Name</label>
+                <input type="text" id="userName" placeholder="Enter your name">
+                <button class="btn-primary mt-20" onclick="saveName()">Save Name</button>
+            </div>
+        </section>
+
+        <!-- Theme Section -->
+        <section class="card">
+            <h2>Appearance</h2>
+            <div class="flex-between">
+                <label for="themeToggle">Dark Mode</label>
+                <button class="btn-secondary" onclick="toggleTheme()" id="themeToggle">
+                    Light Mode
+                </button>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 10px;">Toggle between light and dark themes</p>
+        </section>
+
+        <!-- Data Management Section -->
+        <section class="card">
+            <h2>Data Management</h2>
+
+            <!-- Export Data -->
+            <div style="margin-bottom: 20px;">
+                <h3>Export Data</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">Download your data as a JSON file for backup</p>
+                <button class="btn-primary" onclick="exportData()">📥 Export Data</button>
+            </div>
+
+            <!-- Import Data -->
+            <div style="margin-bottom: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <h3>Import Data</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">Restore your data from a previously saved file</p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="file" id="importFile" accept=".json" style="flex: 1;">
+                    <button class="btn-primary" onclick="importDataFile()">📤 Import Data</button>
+                </div>
+            </div>
+
+            <!-- Clear Data -->
+            <div style="padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <h3>Clear All Data</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">⚠️ This will delete all your data and cannot be undone</p>
+                <button class="btn-danger" onclick="clearData()">🗑️ Clear All Data</button>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="card">
+            <h2>About</h2>
+            <div>
+                <p>Developer Learning Path Tracker v1.0</p>
+                <p style="color: #6b7280; margin-top: 10px;">A simple, beginner-friendly tool for tracking your programming learning journey. Built with vanilla HTML, CSS, and JavaScript.</p>
+                <p style="color: #6b7280; margin-top: 10px;">Features:</p>
+                <ul style="color: #6b7280; margin-left: 20px; margin-top: 10px;">
+                    <li>Track progress on 45 programming topics across 3 paths</li>
+                    <li>Save and organize code snippets</li>
+                    <li>View your learning activity with a visual activity grid</li>
+                    <li>Export and import your data for backup</li>
+                    <li>Dark mode support</li>
+                    <li>Mobile-friendly responsive design</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load current user name
+            const userName = getUserName();
+            document.getElementById('userName').value = userName;
+
+            // Set theme button text
+            updateThemeButton();
+        });
+
+        function saveName() {
+            const name = document.getElementById('userName').value.trim();
+            if (name) {
+                setUserName(name);
+                alert('Name saved successfully!');
+            } else {
+                alert('Please enter a name');
+            }
+        }
+
+        function updateThemeButton() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const btn = document.getElementById('themeToggle');
+            btn.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+        }
+
+        function importDataFile() {
+            const fileInput = document.getElementById('importFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a file');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    if (importData(content)) {
+                        alert('Data imported successfully! Reloading page...');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        alert('Failed to import data. Check the file format.');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function clearData() {
+            if (clearAllData()) {
+                alert('All data cleared! Reloading page...');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+
+        // Override toggleTheme to update button text
+        const originalToggleTheme = window.toggleTheme;
+        window.toggleTheme = function() {
+            originalToggleTheme();
+            updateThemeButton();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Learning Path Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">📚 Learning Tracker</div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="paths.html">Paths</a></li>
+                <li><a href="snippets.html">Snippets</a></li>
+                <li><a href="stats.html">Stats</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Welcome, <span id="userName">Learner</span>! 👋</h1>
+            <p>Track your coding journey and master new skills</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="topicsCount">0</div>
+                <div class="stat-label">Topics Completed</div>
+                <div class="stat-subtitle">(out of 45)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="currentStreak">0</div>
+                <div class="stat-label">Current Streak</div>
+                <div class="stat-subtitle">days</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="snippetsCount">0</div>
+                <div class="stat-label">Snippets Saved</div>
+                <div class="stat-subtitle">code examples</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">Overall Progress</div>
+                <div class="stat-subtitle">completion rate</div>
+            </div>
+        </section>
+
+        <!-- Activity Grid -->
+        <section class="activity-section">
+            <div class="activity-header">
+                <div>
+                    <h2>Your Activity</h2>
+                    <p class="activity-label">Last 30 days of learning</p>
+                </div>
+                <div class="streak-badge" id="streakBadge">
+                    <span class="streak-fire">🔥</span>
+                    <span class="streak-number" id="streakDisplay">0</span>
+                    <span class="streak-text">day streak</span>
+                </div>
+            </div>
+            <div class="activity-grid" id="activityGrid"></div>
+            <div class="activity-legend">
+                <div class="legend-item">
+                    <span class="legend-box" style="background-color: #e5e7eb;"></span>
+                    <span>No activity</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-box" style="background-color: #bfdbfe;"></span>
+                    <span>1-2 topics</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-box" style="background-color: #60a5fa;"></span>
+                    <span>3-4 topics</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-box" style="background-color: #3b82f6;"></span>
+                    <span>5+ topics</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions-section">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions-grid">
+                <button class="quick-action-btn" onclick="openSnippetModal()">
+                    <span class="action-icon">📝</span>
+                    <span class="action-text">Add Snippet</span>
+                </button>
+                <button class="quick-action-btn" onclick="goToPath('frontend')">
+                    <span class="action-icon">📖</span>
+                    <span class="action-text">Learn Next</span>
+                </button>
+                <button class="quick-action-btn" onclick="window.location.href='stats.html'">
+                    <span class="action-icon">📊</span>
+                    <span class="action-text">View Stats</span>
+                </button>
+                <button class="quick-action-btn" onclick="window.location.href='settings.html'">
+                    <span class="action-icon">⚙️</span>
+                    <span class="action-text">Settings</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Learning Paths Overview -->
+        <section class="paths-section">
+            <h2>Learning Paths</h2>
+            <div class="paths-grid">
+                <div class="path-card" onclick="goToPath('frontend')">
+                    <div class="path-icon">🎨</div>
+                    <h3>Frontend</h3>
+                    <div class="path-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="frontendProgress"></div>
+                        </div>
+                        <span class="progress-text" id="frontendText">0/15</span>
+                    </div>
+                </div>
+                <div class="path-card" onclick="goToPath('backend')">
+                    <div class="path-icon">⚙️</div>
+                    <h3>Backend</h3>
+                    <div class="path-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="backendProgress"></div>
+                        </div>
+                        <span class="progress-text" id="backendText">0/15</span>
+                    </div>
+                </div>
+                <div class="path-card" onclick="goToPath('algorithms')">
+                    <div class="path-icon">🧮</div>
+                    <h3>Algorithms</h3>
+                    <div class="path-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="algorithmsProgress"></div>
+                        </div>
+                        <span class="progress-text" id="algorithmsText">0/15</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="recent-section">
+            <h2>Recent Activity</h2>
+            <ul class="activity-list" id="activityList">
+                <li>No activity yet. Start learning!</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Dashboard specific initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            initDashboard();
+        });
+
+        function initDashboard() {
+            // Display user name
+            const userName = localStorage.getItem('userName') || 'Learner';
+            document.getElementById('userName').textContent = userName;
+
+            // Calculate and display stats
+            updateStats();
+            renderActivityGrid();
+            updatePathProgress();
+            updateRecentActivity();
+        }
+
+        function updateStats() {
+            const topics = loadTopics();
+            const snippets = loadSnippets();
+            
+            // Count completed topics
+            let completedCount = 0;
+            for (let topicId in topics) {
+                if (topics[topicId].completed) {
+                    completedCount++;
+                }
+            }
+
+            // Calculate current streak
+            const streak = calculateCurrentStreak();
+
+            // Update DOM
+            document.getElementById('topicsCount').textContent = completedCount;
+            document.getElementById('currentStreak').textContent = streak;
+            document.getElementById('snippetsCount').textContent = snippets.length;
+            document.getElementById('completionRate').textContent = 
+                Math.round((completedCount / 45) * 100) + '%';
+        }
+
+        function calculateCurrentStreak() {
+            const activity = loadActivity();
+            let streak = 0;
+            const today = new Date();
+
+            for (let i = 0; i < 365; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+
+                if (activity[dateStr] && activity[dateStr].topicsCompleted > 0) {
+                    streak++;
+                } else if (i > 0) {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        function updatePathProgress() {
+            const topics = loadTopics();
+            const paths = {
+                frontend: { completed: 0, total: 15 },
+                backend: { completed: 0, total: 15 },
+                algorithms: { completed: 0, total: 15 }
+            };
+
+            for (let topicId in topics) {
+                const topic = topics[topicId];
+                if (paths[topic.path]) {
+                    if (topic.completed) {
+                        paths[topic.path].completed++;
+                    }
+                }
+            }
+
+            // Update frontend
+            updatePathCard('frontend', paths.frontend.completed, paths.frontend.total);
+            // Update backend
+            updatePathCard('backend', paths.backend.completed, paths.backend.total);
+            // Update algorithms
+            updatePathCard('algorithms', paths.algorithms.completed, paths.algorithms.total);
+        }
+
+        function updatePathCard(path, completed, total) {
+            const percentage = (completed / total) * 100;
+            document.getElementById(path + 'Progress').style.width = percentage + '%';
+            document.getElementById(path + 'Text').textContent = completed + '/' + total;
+        }
+
+        function updateRecentActivity() {
+            const activity = loadActivity();
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = '';
+
+            // Get last 10 days of activity
+            const entries = [];
+            for (let i = 0; i < 10; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+
+                if (activity[dateStr] && activity[dateStr].topicsCompleted > 0) {
+                    entries.push({
+                        date: dateStr,
+                        count: activity[dateStr].topicsCompleted
+                    });
+                }
+            }
+
+            if (entries.length === 0) {
+                activityList.innerHTML = '<li>No activity yet. Start learning!</li>';
+                return;
+            }
+
+            entries.forEach(entry => {
+                const formattedDate = formatDate(new Date(entry.date));
+                const li = document.createElement('li');
+                li.textContent = `Completed ${entry.count} topic${entry.count > 1 ? 's' : ''} on ${formattedDate}`;
+                activityList.appendChild(li);
+            });
+        }
+
+        function goToPath(path) {
+            window.location.href = 'paths.html#' + path;
+        }
+    </script>
+</body>
+</html>
